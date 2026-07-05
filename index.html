@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SobreAviso CGB - Equipes SKYs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #BA113B 0%, #8B0A2E 100%);
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-section img {
+            height: 60px;
+            width: auto;
+        }
+
+        .header-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header-text p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        .status-indicator .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #BA113B;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .team-section {
+            margin-bottom: 30px;
+            border: 2px solid #E6E6E6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .team-header {
+            background: #494947;
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .team-header.active {
+            background: #BA113B;
+            box-shadow: 0 0 15px rgba(186, 17, 59, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #494947;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #E6E6E6;
+        }
+
+        tr:hover {
+            background: #F9F9F9;
+        }
+
+        .status-cell {
+            text-align: center;
+            font-weight: 600;
+            color: #BA113B;
+        }
+
+        .status-cell.active {
+            background: #FFE6ED;
+            border-radius: 5px;
+        }
+
+        .footer {
+            background: #F2F2F2;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #E6E6E6;
+        }
+
+        .last-update {
+            color: #999;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-text h1 {
+                font-size: 22px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+
+        .legend {
+            background: #F0F0F0;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .legend strong {
+            color: #BA113B;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-section">
+                <img src="cgbengenharia.png" alt="Logo CGB Engenharia">
+                <div class="header-text">
+                    <h1>SOBREAVISO EQUIPES SKYs</h1>
+                    <p>CGB Engenharia - Junho 2026</p>
+                </div>
+            </div>
+            <div class="info-box">
+                <strong>Data Atual:</strong> <span id="current-date"></span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="legend">
+                <strong>🔴 EM PLANTÃO:</strong> Equipe responsável pelo sobreaviso neste período
+            </div>
+
+            <div id="teams-container"></div>
+        </div>
+
+        <div class="footer">
+            <p>Sistema de Sobreaviso - CGB Engenharia</p>
+            <div class="last-update">
+                Atualizado automaticamente | Última sincronização: <span id="last-sync"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados das equipes
+        const teams = [
+            {
+                dates: { start: "2026-06-06", end: "2026-06-07", display: "06/06/2026 e 07/06/2026" },
+                members: [
+                    { name: "MARCIRIO CESAR VIANA DA SILVA NETO", company: "CGB", prefix: "MA-PDT-V001M", phone: "99985451637", regional: "PDT" },
+                    { name: "ATAIDES DA SILVA", company: "CGB", prefix: "MA-PDT-V001M", phone: "99991270267", regional: "PDT" },
+                    { name: "MAILSON MARTINS PEREIRA", company: "CGB", prefix: "MA-PDT-V001M", phone: "99981597049", regional: "PDT" },
+                    { name: "MARCELO DIAS MIRANDA", company: "CGB", prefix: "MA-PDT-V001M", phone: "99991466209", regional: "PDT" },
+                    { name: "WALEF SILVA PEREIRA", company: "CGB", prefix: "MA-PDT-V001M", phone: "99985286010", regional: "PDT" }
+                ]
+            },
+            {
+                dates: { start: "2026-06-13", end: "2026-06-14", display: "13/06/2026 e 14/06/2026" },
+                members: [
+                    { name: "FERNANDO MELO DA COSTA", company: "CGB", prefix: "PDS350", phone: "", regional: "PDT" },
+                    { name: "MARCOS ANDRE DE SOUSA ARAUJO", company: "CGB", prefix: "PDS350", phone: "", regional: "PDT" },
+                    { name: "TENILSON DE FIGUEIREDO LIMA", company: "CGB", prefix: "PDS350", phone: "", regional: "PDT" },
+                    { name: "CIDIVAN DE ALMEIDA SILVA", company: "CGB", prefix: "PDS350", phone: "", regional: "PDT" },
+                    { name: "DANRLEY MORAIS DA SILVA", company: "CGB", prefix: "PDS350", phone: "", regional: "PDT" }
+                ]
+            },
+            {
+                dates: { start: "2026-06-20", end: "2026-06-21", display: "20/06/2026 e 21/06/2026" },
+                members: [
+                    { name: "GERALDO MOREIRA RODRIGUES", company: "CGB", prefix: "PDT351", phone: "99991176663", regional: "PDT" },
+                    { name: "RICARDO DA CONCEICAO ARAUJO", company: "CGB", prefix: "PDT351", phone: "99991128854", regional: "PDT" },
+                    { name: "LUIS WALLAS CRUZ OLIVEIRA", company: "CGB", prefix: "PDT351", phone: "93984358047", regional: "PDT" },
+                    { name: "RUBENILSON RODRIGUES DA COSTA LIMA", company: "CGB", prefix: "PDT351", phone: "99981040385", regional: "PDT" }
+                ]
+            },
+            {
+                dates: { start: "2026-06-27", end: "2026-06-28", display: "27/06/2026 e 28/06/2026" },
+                members: [
+                    { name: "JARBEM ROSA SOUSA", company: "CGB", prefix: "MA-BDC-V001M", phone: "98970111629", regional: "PDT" },
+                    { name: "RAILTON SILVA", company: "CGB", prefix: "MA-BDC-V001M", phone: "99988180010", regional: "PDT" },
+                    { name: "FRANCISCO DE ASSIS ROCHA", company: "CGB", prefix: "MA-BDC-V001M", phone: "98988113760", regional: "PDT" },
+                    { name: "SERGIO BALBINO DE ARAUJO TAVARES", company: "CGB", prefix: "MA-BDC-V001M", phone: "71983421935", regional: "PDT" },
+                    { name: "LUIS FELIPE DOS SANTOS", company: "CGB", prefix: "MA-BDC-V001M", phone: "89995978598", regional: "PDT" },
+                    { name: "ANTONIO MARCOS MERCES SANTOS", company: "CGB", prefix: "MA-BDC-V001M", phone: "91985948142", regional: "PDT" }
+                ]
+            }
+        ];
+
+        function isTeamActive(startDate, endDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const start = new Date(startDate);
+            start.setDate(start.getDate() - 1); // Sexta anterior
+            
+            const end = new Date(endDate);
+            end.setDate(end.getDate() + 1); // Segunda posterior
+            
+            return today >= start && today <= end;
+        }
+
+        function formatDate(date) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('pt-BR', options);
+        }
+
+        function renderTeams() {
+            const container = document.getElementById('teams-container');
+            
+            teams.forEach(team => {
+                const isActive = isTeamActive(team.dates.start, team.dates.end);
+                
+                let html = `
+                    <div class="team-section">
+                        <div class="team-header ${isActive ? 'active' : ''}">
+                            📅 EQUIPE ESCALADA PARA: ${team.dates.display}
+                            ${isActive ? ' <span style="margin-left: 10px; color: #FFD700;">🔴 EM PLANTÃO</span>' : ''}
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>NOME ENCARREGADO</th>
+                                    <th>PARCEIRA</th>
+                                    <th>PREFIXO</th>
+                                    <th>TELEFONE</th>
+                                    <th>REGIONAL</th>
+                                    <th>STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                team.members.forEach(member => {
+                    const statusClass = isActive ? 'active' : '';
+                    const statusText = isActive ? '🔴 EM PLANTÃO' : '—';
+                    html += `
+                        <tr>
+                            <td><strong>${member.name}</strong></td>
+                            <td>${member.company}</td>
+                            <td>${member.prefix}</td>
+                            <td>${member.phone || '—'}</td>
+                            <td>${member.regional}</td>
+                            <td class="status-cell ${statusClass}">${statusText}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                container.innerHTML += html;
+            });
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('current-date').textContent = formatDate(now);
+            document.getElementById('last-sync').textContent = now.toLocaleTimeString('pt-BR');
+        }
+
+        // Inicializar
+        renderTeams();
+        updateDateTime();
+        
+        // Atualizar data/hora a cada minuto
+        setInterval(updateDateTime, 60000);
+    </script>
+</body>
+</html>
